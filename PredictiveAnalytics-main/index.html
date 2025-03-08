@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Forecasting & Optimization</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 5px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #1557b0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .output {
+            margin-top: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #1a73e8;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        #inventory-output {
+            font-size: 18px;
+            color: #333;
+        }
+
+        #sales-chart {
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .message {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales Forecasting & Optimization</h1>
+
+        <div id="message" class="message"></div>
+
+        <div id="auth-section">
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="text" id="reg-username" placeholder="Username" required>
+                <input type="password" id="reg-password" placeholder="Password" required>
+                <button type="submit">Register</button>
+            </form>
+
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div id="sales-section" class="hidden">
+            <h2>Add Sales Data</h2>
+            <form id="sales-form">
+                <input type="date" id="sales-date" required>
+                <input type="number" id="sales-amount" placeholder="Sales Amount" required>
+                <button type="submit">Add Sales</button>
+            </form>
+
+            <h2>Get Sales Data</h2>
+            <form id="get-sales-form">
+                <input type="date" id="start-date" required>
+                <input type="date" id="end-date" required>
+                <button type="submit">Fetch Sales</button>
+            </form>
+            <div id="sales-output" class="output"></div>
+
+            <h2>Train Sales Model</h2>
+            <button id="train-model-btn">Train Model</button>
+
+            <h2>Predict Sales</h2>
+            <form id="predict-sales-form">
+                <input type="number" id="predict-days" placeholder="Days" value="30" required>
+                <button type="submit">Predict Sales</button>
+            </form>
+            <table id="predict-table" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Predicted Sales</th>
+                    </tr>
+                </thead>
+                <tbody id="predict-table-body"></tbody>
+            </table>
+
+            <h2>Optimize Pricing</h2>
+            <form id="pricing-form">
+                <input type="number" id="product-id" placeholder="Product ID" required>
+                <input type="number" id="current-price" placeholder="Current Price" step="0.01" required>
+                <input type="number" id="demand-elasticity" placeholder="Demand Elasticity" step="0.01" required>
+                <button type="submit">Optimize Pricing</button>
+            </form>
+            <table id="pricing-table" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Optimized Price</th>
+                        <th>Record ID</th>
+                    </tr>
+                </thead>
+                <tbody id="pricing-table-body"></tbody>
+            </table>
+
+            <h2>Optimize Inventory</h2>
+            <form id="inventory-form">
+                <input type="number" id="inventory-days" placeholder="Days" value="30" required>
+                <input type="number" id="safety-stock" placeholder="Safety Stock" value="10" required>
+                <button type="submit">Optimize Inventory</button>
+            </form>
+            <div id="inventory-output" class="output"></div>
+
+            <h2>Visualize Sales</h2>
+            <form id="visualize-form">
+                <input type="number" id="visualize-days" placeholder="Days" value="30" required>
+                <input type="number" id="visualize-safety-stock" placeholder="Safety Stock" value="10" required>
+                <button type="submit">Visualize</button>
+            </form>
+            <img id="sales-chart" alt="Sales Chart">
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:5000";
+        let token = null;
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById("message");
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = "block";
+            setTimeout(() => {
+                messageDiv.style.display = "none";
+            }, 3000);
+        }
+
+        document.getElementById("register-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("reg-email").value;
+            const username = document.getElementById("reg-username").value;
+            const password = document.getElementById("reg-password").value;
+
+            try {
+                const response = await fetch(`${API_URL}/register-users`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email_id: email, username, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, "success");
+                    document.getElementById("register-form").reset();
+                } else {
+                    showMessage(data.message, "error");
+                }
+            } catch (error) {
+                showMessage("Registration failed. Check console for details.", "error");
+            }
+        });
+
+        document.getElementById("login-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    token = data.token;
+                    document.getElementById("auth-section").classList.add("hidden");
+                    document.getElementById("sales-section").classList.remove("hidden");
+                    showMessage(data.message, "success");
+                    document.getElementById("login-form").reset();
+                } else {
+                    showMessage(data.message, "error");
+                }
+            } catch (error) {
+                showMessage("Login failed. Check console for details.", "error");
+            }
+        });
+
+        document.getElementById("sales-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const date = document.getElementById("sales-date").value;
+            const sales = document.getElementById("sales-amount").value;
+            try {
+                const response = await fetch(`${API_URL}/add-sales`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ date, sales }),
+                });
+                const data = await response.json();
+                showMessage(data.message, "success");
+            } catch (error) {
+                showMessage("Failed to add sales data", "error");
+            }
+        });
+
+        document.getElementById("get-sales-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const start_date = document.getElementById("start-date").value;
+            const end_date = document.getElementById("end-date").value;
+            try {
+                const response = await fetch(`${API_URL}/get-sales?start_date=${start_date}&end_date=${end_date}`, {
+                    headers: { "Authorization": `Bearer ${token}` },
+                });
+                const data = await response.json();
+                document.getElementById("sales-output").innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                showMessage("Failed to fetch sales data", "error");
+            }
+        });
+
+        document.getElementById("train-model-btn").addEventListener("click", async () => {
+            try {
+                const response = await fetch(`${API_URL}/train-sales-model`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                });
+                const data = await response.json();
+                showMessage(data.message || data.error, response.ok ? "success" : "error");
+            } catch (error) {
+                showMessage("Failed to train model", "error");
+            }
+        });
+
+        document.getElementById("predict-sales-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const days = document.getElementById("predict-days").value;
+            try {
+                const response = await fetch(`${API_URL}/predict-sales`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ days }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const tableBody = document.getElementById("predict-table-body");
+                    tableBody.innerHTML = "";
+                    data.forEach(prediction => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${prediction.date}</td>
+                            <td>${prediction.predicted_sales.toFixed(2)}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    document.getElementById("predict-table").classList.remove("hidden");
+                } else {
+                    showMessage(data.error, "error");
+                }
+            } catch (error) {
+                showMessage("Failed to predict sales", "error");
+            }
+        });
+
+        document.getElementById("pricing-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const product_id = document.getElementById("product-id").value;
+            const current_price = document.getElementById("current-price").value;
+            const demand_elasticity = document.getElementById("demand-elasticity").value;
+            try {
+                const response = await fetch(`${API_URL}/optimize-pricing`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ product_id, current_price, demand_elasticity }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const tableBody = document.getElementById("pricing-table-body");
+                    tableBody.innerHTML = "";
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${data.optimized_price}</td>
+                        <td>${data.record_id}</td>
+                    `;
+                    tableBody.appendChild(row);
+                    document.getElementById("pricing-table").classList.remove("hidden");
+                    showMessage(data.message, "success");
+                } else {
+                    showMessage(data.error, "error");
+                }
+            } catch (error) {
+                showMessage("Failed to optimize pricing", "error");
+            }
+        });
+
+        document.getElementById("inventory-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const days = document.getElementById("inventory-days").value;
+            const safety_stock = document.getElementById("safety-stock").value;
+            try {
+                const response = await fetch(`${API_URL}/optimize-inventory`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ days, safety_stock }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById("inventory-output").innerText = `Optimized Inventory: ${data.optimized_inventory}`;
+                } else {
+                    showMessage(data.error, "error");
+                }
+            } catch (error) {
+                showMessage("Failed to optimize inventory", "error");
+            }
+        });
+
+        document.getElementById("visualize-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const days = document.getElementById("visualize-days").value;
+            const safety_stock = document.getElementById("visualize-safety-stock").value;
+            try {
+                const response = await fetch(`${API_URL}/visualize-sales?days=${days}&safety_stock=${safety_stock}`, {
+                    headers: { "Authorization": `Bearer ${token}` },
+                });
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                document.getElementById("sales-chart").src = url;
+            } catch (error) {
+                showMessage("Failed to visualize sales", "error");
+            }
+        });
+    </script>
+</body>
+</html>
